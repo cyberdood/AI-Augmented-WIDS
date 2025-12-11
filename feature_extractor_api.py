@@ -93,37 +93,41 @@ def build_feature_doc(device: dict, sensor_time_iso: str) -> dict | None:
     """
     Map a Kismet device JSON into a feature document for Elasticsearch.
 
-    This uses common 802.11-related fields; missing keys are handled safely.
-    You can extend this as you inspect your own Kismet JSON.
+    Your Kismet JSON uses *flattened* keys like:
+      "kismet.device.base.macaddr"
+      "kismet.device.base.name"
+    so we read those directly instead of a nested "kismet.device.base" dict.
     """
 
-    base = device.get("kismet.device.base", {})
+    def base(field, default=None):
+        """Helper for base fields."""
+        return device.get(f"kismet.device.base.{field}", default)
 
-    bssid = base.get("macaddr")
+    # --- core identity fields ---
+    bssid = base("macaddr")
     if not bssid:
-        # Skip non-MAC-address devices (e.g., some SDR sources)
+        # Skip devices without a MAC (non-802.11, SDR-only, etc.)
         return None
 
-    ssid = base.get("name")
-    manuf = base.get("manuf")
-    channel = base.get("channel")
-    phyname = base.get("phyname")
+    ssid = base("name") or base("commonname")
+    manuf = base("manuf")
+    channel = base("channel")
+    phyname = base("phyname")
 
-    first_time = base.get("first_time")
-    last_time = base.get("last_time")
+    first_time = base("first_time")
+    last_time = base("last_time")
 
-    # Signal stats (if present)
-    signal = base.get("signal", {})
-    rssi_last = signal.get("kismet.common.signal.last")
-    rssi_min = signal.get("kismet.common.signal.min")
-    rssi_max = signal.get("kismet.common.signal.max")
-    rssi_avg = signal.get("kismet.common.signal.avg")
+    # --- signal stats (best-effort; may or may not exist depending on Kismet build) ---
+    # You can tweak these keys after dumping a full device JSON.
+    rssi_last = device.get("kismet.common.signal.last")
+    rssi_min  = device.get("kismet.common.signal.min")
+    rssi_max  = device.get("kismet.common.signal.max")
+    rssi_avg  = device.get("kismet.common.signal.avg")
 
-    # Number of clients; field name can vary across versions,
-    # so default to 0 if not present.
-    num_clients = base.get("num_clients", 0)
+    # client count (if Kismet exposes it)
+    num_clients = base("num_clients", 0)
 
-    # Basic SSID entropy (text complexity heuristic)
+    # --- SSID entropy ---
     ssid_ent = ssid_entropy(ssid) if ssid else 0.0
 
     doc = {
@@ -150,14 +154,12 @@ def build_feature_doc(device: dict, sensor_time_iso: str) -> dict | None:
 
         "client_count": num_clients,
 
-        # Placeholders for future enhancements; you can populate these
-        # using additional Kismet fields or by tracking deltas over time.
+        # Placeholders for future enhancements
         "deauth_count_approx": None,
         "probe_req_count_approx": None,
     }
 
     return doc
-
 
 def get_es_client() -> Elasticsearch:
     """Create an Elasticsearch client."""
