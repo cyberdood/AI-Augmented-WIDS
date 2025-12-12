@@ -117,7 +117,7 @@ AI-Augmented-WIDS/
 ## Prerequisites
 
 ### Hardware
-- Raspberry Pi 4 or x86 Linux host  
+- Raspberry Pi 5 (16GB RAM) or x86 Linux host  
 - USB Wi-Fi adapter with **monitor mode**  
 
 ### Software
