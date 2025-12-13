@@ -97,14 +97,14 @@ OLLAMA_MODEL=llama3.1
 
 ```bash
 #Run first to stand up elasticsearch, kibana, kismet, and ollama.
-docker compose up -d elasticsearch kibana kismet ollama
+docker-compose up -d elasticsearch kibana kismet ollama
 
 #View elasticsearch logs for setup token and username and password to setup kibana.
 #Setup kismet by going to http://IP/2501 and set usernmae and password. Set username
 #and password in the .env file for elasticsearch and kismet before executing the next steps.
-docker compose up -d feature-extractor
-docker compose run --rm ml-trainer
-docker compose up -d context-enricher
+docker-compose up -d feature-extractor
+docker-compose run --rm ml-trainer
+docker-compose up -d context-enricher
 ```
 
 ---
