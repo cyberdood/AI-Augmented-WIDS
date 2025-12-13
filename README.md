@@ -47,12 +47,14 @@ AI-Augmented-WIDS processes wireless activity through four logical layers:
 
 ```
 AI-Augmented-WIDS/
+├── context_enricher/
+|   ├── context_enricher.py
+|   └──Dockerfile
 ├── feature_extractor
 |   ├──feature_extractor.py
 |   └──Dockerfile
-├── context_enricher/
-|   ├── context_enricher.py
-|   └──Dockerfile.context-enricher
+├── kismet/
+|   └──Dockerfile
 ├── ml/
 │   ├── train_iforest.py
 │   ├── Dockerfile
