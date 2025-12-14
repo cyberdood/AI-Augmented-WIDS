@@ -85,36 +85,27 @@ services:
       dockerfile: Dockerfile
     image: kismet
     container_name: kismet
-    networks:
-      - wids
-    # Uncomment for long-running daemon mode
-    # restart: unless-stopped
-    
-  # Autonomous enrichment worker (ES -> Ollama -> ES)
-  context-enricher:
-    build:
-      context: ./context_enricher
-      dockerfile: Dockerfile
-    image: wids-context-enricher
-    container_name: wids-context-enricher
-    env_file:
-      - .env
+
+    # REQUIRED for monitor mode + RF access
+    network_mode: host
+    privileged: true
+
     environment:
-      # Ensure the worker can reach Ollama on the compose network
-      - OLLAMA_URL=http://ollama:11434
-      # Set to match whatever you pulled in Ollama (example)
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.1}
-      # Polling behavior
-      - POLL_SECONDS=${POLL_SECONDS:-10}
-      - BATCH_SIZE=${BATCH_SIZE:-10}
-      - TIME_WINDOW=${TIME_WINDOW:-now-24h}
-      - WRITE_STRUCTURED_CONTEXT=${WRITE_STRUCTURED_CONTEXT:-true}
-    depends_on:
-      - elasticsearch
-      - ollama
-    networks:
-      - wids
+      - KISMET_SOURCE=linuxwifi:wlx803f5d0bad74:name=usbmon
+
+    volumes:
+      - /home/ubuntu/kismet_logs:/kismet/logs
+      - /home/ubuntu/kismet_config:/kismet/config
+
+    devices:
+      - /dev/bus/usb
+      - /dev/net/tun
+      - /dev/rfkill
+      # Change to your USB wireless NIC that supports monitor mode
+      - /dev/wlx803f5d0bad74
+
     restart: unless-stopped
+
 
   ml-trainer:
     build:
