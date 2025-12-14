@@ -13,7 +13,7 @@
 
 This project implements an **AI-augmented Wireless Intrusion Detection System (WIDS)** that combines open-source wireless telemetry collection, data analytics, machine-learning–based anomaly detection, and large language model (LLM)–driven contextual analysis.
 
-The system is designed to run on a **single Raspberry Pi** for lab and research use, while remaining modular and scalable for distributed or higher-throughput deployments.
+The system is designed to run on a **single Raspberry Pi 5** for lab and research use, while remaining modular and scalable for distributed or higher-throughput deployments.
 
 ---
 
